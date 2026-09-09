@@ -21,7 +21,7 @@ class PatientVitalsInput(BaseModel):
     Glucose: float = Field(
         ...,
         ge=0.0,
-        le=400.0,
+        le=500.0,
         description="Plasma glucose concentration (2 hours in an oral glucose tolerance test)",
         examples=[150.0],
     )
@@ -67,6 +67,37 @@ class PatientVitalsInput(BaseModel):
         description="Age of the patient in years",
         examples=[45],
     )
+
+    @field_validator("Age", mode="before")
+    @classmethod
+    def validate_age_positive(cls, v):
+        if isinstance(v, (int, float)) and v < 0:
+            raise ValueError("Age cannot be negative")
+        return v
+
+    @classmethod
+    def model_validate(cls, obj: Any, *args, **kwargs):
+        if isinstance(obj, dict):
+            key_map = {
+                "pregnancies": "Pregnancies",
+                "glucose": "Glucose",
+                "bloodpressure": "BloodPressure",
+                "blood_pressure": "BloodPressure",
+                "skinthickness": "SkinThickness",
+                "skin_thickness": "SkinThickness",
+                "insulin": "Insulin",
+                "bmi": "BMI",
+                "diabetespedigreefunction": "DiabetesPedigreeFunction",
+                "diabetes_pedigree": "DiabetesPedigreeFunction",
+                "diabetes_pedigree_function": "DiabetesPedigreeFunction",
+                "age": "Age",
+            }
+            normalized = {}
+            for k, val in obj.items():
+                norm_key = key_map.get(k.lower(), k)
+                normalized[norm_key] = val
+            obj = normalized
+        return super().model_validate(obj, *args, **kwargs)
 
     model_config = {
         "json_schema_extra": {

@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Healthcare Diagnosis - Interactive Dashboard</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (!window.tailwind) {
+      document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');
+    }
+  </script>
   <style>
     @keyframes pulseGlow {
       0%, 100% { opacity: 0.9; transform: scale(1); }
@@ -141,18 +146,18 @@
                   <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Glucose (2-hr Oral Test)
                 </label>
                 <div class="flex items-center gap-2">
-                  <span id="glucoseBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800">Normal</span>
-                  <input type="number" id="num_Glucose" min="40" max="300" step="1" value="150" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('Glucose', this.value)">
+                  <span id="glucoseBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800">PREDIABETIC</span>
+                  <input type="number" id="num_Glucose" min="40" max="500" step="1" value="112" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('Glucose', this.value)">
                   <span class="text-xs text-slate-500 font-mono">mg/dL</span>
                 </div>
               </div>
-              <input type="range" id="range_Glucose" min="40" max="300" step="1" value="150" class="w-full" oninput="syncControl('Glucose', this.value)">
+              <input type="range" id="range_Glucose" min="40" max="500" step="1" value="112" class="w-full" oninput="syncControl('Glucose', this.value)">
               <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
-                <span>40 (Hypo)</span>
+                <span>40 (hypo)</span>
                 <span class="text-emerald-400">Normal (&lt;100)</span>
                 <span class="text-amber-400">Pre (100-125)</span>
                 <span class="text-rose-400">Diabetic (&ge;126)</span>
-                <span>300</span>
+                <span>500</span>
               </div>
             </div>
 
@@ -163,12 +168,12 @@
                   <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Body Mass Index (BMI)
                 </label>
                 <div class="flex items-center gap-2">
-                  <span id="bmiBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800">Obese</span>
-                  <input type="number" id="num_BMI" min="10" max="75" step="0.1" value="33.5" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('BMI', this.value)">
+                  <span id="bmiBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800">OBESE</span>
+                  <input type="number" id="num_BMI" min="10" max="75" step="0.1" value="53.8" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('BMI', this.value)">
                   <span class="text-xs text-slate-500 font-mono">kg/m²</span>
                 </div>
               </div>
-              <input type="range" id="range_BMI" min="10" max="75" step="0.1" value="33.5" class="w-full" oninput="syncControl('BMI', this.value)">
+              <input type="range" id="range_BMI" min="10" max="75" step="0.1" value="53.8" class="w-full" oninput="syncControl('BMI', this.value)">
               <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
                 <span>10.0</span>
                 <span class="text-emerald-400">18.5 - 24.9</span>
@@ -185,11 +190,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Age</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_Age" min="18" max="100" step="1" value="45" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Age', this.value)">
+                    <input type="number" id="num_Age" min="1" max="120" step="1" value="28" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Age', this.value)">
                     <span class="text-xs text-slate-500 font-mono">yrs</span>
                   </div>
                 </div>
-                <input type="range" id="range_Age" min="18" max="100" step="1" value="45" class="w-full" oninput="syncControl('Age', this.value)">
+                <input type="range" id="range_Age" min="1" max="120" step="1" value="28" class="w-full" oninput="syncControl('Age', this.value)">
               </div>
 
               <!-- Pregnancies -->
@@ -197,11 +202,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Pregnancies</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_Pregnancies" min="0" max="20" step="1" value="2" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Pregnancies', this.value)">
+                    <input type="number" id="num_Pregnancies" min="0" max="20" step="1" value="6" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Pregnancies', this.value)">
                     <span class="text-xs text-slate-500 font-mono">times</span>
                   </div>
                 </div>
-                <input type="range" id="range_Pregnancies" min="0" max="20" step="1" value="2" class="w-full" oninput="syncControl('Pregnancies', this.value)">
+                <input type="range" id="range_Pregnancies" min="0" max="20" step="1" value="6" class="w-full" oninput="syncControl('Pregnancies', this.value)">
               </div>
             </div>
 
@@ -212,11 +217,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Blood Pressure</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_BloodPressure" min="30" max="180" step="1" value="85" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('BloodPressure', this.value)">
+                    <input type="number" id="num_BloodPressure" min="30" max="180" step="1" value="67" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('BloodPressure', this.value)">
                     <span class="text-xs text-slate-500 font-mono">mmHg</span>
                   </div>
                 </div>
-                <input type="range" id="range_BloodPressure" min="30" max="180" step="1" value="85" class="w-full" oninput="syncControl('BloodPressure', this.value)">
+                <input type="range" id="range_BloodPressure" min="30" max="180" step="1" value="67" class="w-full" oninput="syncControl('BloodPressure', this.value)">
               </div>
 
               <!-- Insulin -->
@@ -224,11 +229,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Serum Insulin</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_Insulin" min="0" max="600" step="1" value="120" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Insulin', this.value)">
+                    <input type="number" id="num_Insulin" min="0" max="600" step="1" value="119" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Insulin', this.value)">
                     <span class="text-xs text-slate-500 font-mono">µU/ml</span>
                   </div>
                 </div>
-                <input type="range" id="range_Insulin" min="0" max="600" step="1" value="120" class="w-full" oninput="syncControl('Insulin', this.value)">
+                <input type="range" id="range_Insulin" min="0" max="600" step="1" value="119" class="w-full" oninput="syncControl('Insulin', this.value)">
               </div>
             </div>
 
@@ -239,11 +244,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Skin Thickness</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_SkinThickness" min="0" max="80" step="1" value="30" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('SkinThickness', this.value)">
+                    <input type="number" id="num_SkinThickness" min="0" max="80" step="1" value="25" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('SkinThickness', this.value)">
                     <span class="text-xs text-slate-500 font-mono">mm</span>
                   </div>
                 </div>
-                <input type="range" id="range_SkinThickness" min="0" max="80" step="1" value="30" class="w-full" oninput="syncControl('SkinThickness', this.value)">
+                <input type="range" id="range_SkinThickness" min="0" max="80" step="1" value="25" class="w-full" oninput="syncControl('SkinThickness', this.value)">
               </div>
 
               <!-- Pedigree Function -->
@@ -251,11 +256,11 @@
                 <div class="flex justify-between items-center mb-1.5">
                   <label class="text-xs font-semibold text-slate-300">Diabetes Pedigree</label>
                   <div class="flex items-center gap-1">
-                    <input type="number" id="num_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.45" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
+                    <input type="number" id="num_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.79" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
                     <span class="text-xs text-slate-500 font-mono">score</span>
                   </div>
                 </div>
-                <input type="range" id="range_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.45" class="w-full" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
+                <input type="range" id="range_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.79" class="w-full" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
               </div>
             </div>
 
@@ -379,23 +384,23 @@
     const presets = {
       diabetic: {
         Pregnancies: 6,
-        Glucose: 180,
-        BloodPressure: 88,
-        SkinThickness: 32,
-        Insulin: 190,
-        BMI: 38.2,
-        DiabetesPedigreeFunction: 0.85,
-        Age: 52
+        Glucose: 112,
+        BloodPressure: 67,
+        SkinThickness: 25,
+        Insulin: 119,
+        BMI: 53.8,
+        DiabetesPedigreeFunction: 0.79,
+        Age: 28
       },
       moderate: {
         Pregnancies: 3,
-        Glucose: 122,
+        Glucose: 118,
         BloodPressure: 78,
         SkinThickness: 28,
         Insulin: 110,
         BMI: 28.4,
-        DiabetesPedigreeFunction: 0.48,
-        Age: 41
+        DiabetesPedigreeFunction: 0.45,
+        Age: 38
       },
       healthy: {
         Pregnancies: 1,
@@ -437,13 +442,13 @@
         textGlucoseStatus.innerText = `${glucose} mg/dL (Diabetic Risk)`;
       } else if (glucose >= 100) {
         glucoseBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800";
-        glucoseBadge.innerText = "Prediabetic";
+        glucoseBadge.innerText = "PREDIABETIC";
         dotGlucose.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
         textGlucoseStatus.className = "font-bold font-mono text-amber-400";
         textGlucoseStatus.innerText = `${glucose} mg/dL (Borderline)`;
       } else {
         glucoseBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-        glucoseBadge.innerText = "Normal";
+        glucoseBadge.innerText = "NORMAL";
         dotGlucose.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
         textGlucoseStatus.className = "font-bold font-mono text-emerald-400";
         textGlucoseStatus.innerText = `${glucose} mg/dL (Optimal)`;
@@ -456,22 +461,41 @@
 
       if (bmi >= 30.0) {
         bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800";
-        bmiBadge.innerText = "Obese";
+        bmiBadge.innerText = "OBESE";
         dotBMI.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
         textBMIStatus.className = "font-bold font-mono text-rose-400";
         textBMIStatus.innerText = `${bmi.toFixed(1)} (Classified Obese)`;
       } else if (bmi >= 25.0) {
         bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800";
-        bmiBadge.innerText = "Overweight";
+        bmiBadge.innerText = "OVERWEIGHT";
         dotBMI.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
         textBMIStatus.className = "font-bold font-mono text-amber-400";
         textBMIStatus.innerText = `${bmi.toFixed(1)} (Overweight)`;
       } else {
         bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-        bmiBadge.innerText = "Normal Weight";
+        bmiBadge.innerText = "NORMAL";
         dotBMI.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
         textBMIStatus.className = "font-bold font-mono text-emerald-400";
         textBMIStatus.innerText = `${bmi.toFixed(1)} (Healthy Weight)`;
+      }
+
+      const pedigree = parseFloat(document.getElementById('num_DiabetesPedigreeFunction').value) || 0;
+      const dotPedigree = document.getElementById('dotPedigree');
+      const textPedigreeStatus = document.getElementById('textPedigreeStatus');
+      if (dotPedigree && textPedigreeStatus) {
+        if (pedigree >= 0.70) {
+          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+          textPedigreeStatus.className = "font-bold font-mono text-rose-400";
+          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (High Genetic Risk)`;
+        } else if (pedigree >= 0.40) {
+          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+          textPedigreeStatus.className = "font-bold font-mono text-amber-400";
+          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (Moderate Risk)`;
+        } else {
+          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+          textPedigreeStatus.className = "font-bold font-mono text-emerald-400";
+          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (Low Family Risk)`;
+        }
       }
     }
 

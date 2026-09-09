@@ -9,6 +9,14 @@
 
 A production-grade, asynchronous Machine Learning REST API for early clinical disease risk diagnosis. Using patient vitals (Glucose, Blood Pressure, BMI, Insulin, Age, etc.), the system predicts the risk of diabetes along with confidence scores, probability estimation, and stratified risk categories.
 
+<div align="center">
+
+![Smart Healthcare Diagnosis Interactive Dashboard](eda_reports/dashboard_preview.png)
+
+*Interactive Real-Time Clinical Decision Support Dashboard with Live Speedometer Gauge & Instant Risk Stratification*
+
+</div>
+
 ---
 
 ## Table of Contents
