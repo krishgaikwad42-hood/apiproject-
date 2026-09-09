@@ -1,0 +1,148 @@
+{
+  "project": "Smart Healthcare Diagnosis API",
+  "disease": "Diabetes",
+  "trained_at": "2026-09-09T17:44:00.567222",
+  "selected_model": "Decision Tree",
+  "selected_model_metrics": {
+    "accuracy": 0.7662,
+    "precision": 0.65,
+    "recall": 0.7222,
+    "f1_score": 0.6842,
+    "roc_auc": 0.784,
+    "cv_f1_mean": 0.5737,
+    "confusion_matrix": [
+      [
+        79,
+        21
+      ],
+      [
+        15,
+        39
+      ]
+    ]
+  },
+  "feature_names": [
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+  ],
+  "target_mapping": {
+    "0": "No Diabetes",
+    "1": "Diabetes"
+  },
+  "all_model_evaluations": {
+    "Logistic Regression": {
+      "accuracy": 0.7078,
+      "precision": 0.6,
+      "recall": 0.5,
+      "f1_score": 0.5455,
+      "roc_auc": 0.813,
+      "cv_f1_mean": 0.6511,
+      "confusion_matrix": [
+        [
+          82,
+          18
+        ],
+        [
+          27,
+          27
+        ]
+      ]
+    },
+    "Decision Tree": {
+      "accuracy": 0.7662,
+      "precision": 0.65,
+      "recall": 0.7222,
+      "f1_score": 0.6842,
+      "roc_auc": 0.784,
+      "cv_f1_mean": 0.5737,
+      "confusion_matrix": [
+        [
+          79,
+          21
+        ],
+        [
+          15,
+          39
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.7403,
+      "precision": 0.6667,
+      "recall": 0.5185,
+      "f1_score": 0.5833,
+      "roc_auc": 0.8167,
+      "cv_f1_mean": 0.6363,
+      "confusion_matrix": [
+        [
+          86,
+          14
+        ],
+        [
+          26,
+          28
+        ]
+      ]
+    },
+    "Support Vector Machine": {
+      "accuracy": 0.7403,
+      "precision": 0.6522,
+      "recall": 0.5556,
+      "f1_score": 0.6,
+      "roc_auc": 0.7964,
+      "cv_f1_mean": 0.6422,
+      "confusion_matrix": [
+        [
+          84,
+          16
+        ],
+        [
+          24,
+          30
+        ]
+      ]
+    },
+    "K-Nearest Neighbors": {
+      "accuracy": 0.7273,
+      "precision": 0.625,
+      "recall": 0.5556,
+      "f1_score": 0.5882,
+      "roc_auc": 0.79,
+      "cv_f1_mean": 0.6014,
+      "confusion_matrix": [
+        [
+          82,
+          18
+        ],
+        [
+          24,
+          30
+        ]
+      ]
+    },
+    "Gaussian Naive Bayes": {
+      "accuracy": 0.7013,
+      "precision": 0.5667,
+      "recall": 0.6296,
+      "f1_score": 0.5965,
+      "roc_auc": 0.7646,
+      "cv_f1_mean": 0.6369,
+      "confusion_matrix": [
+        [
+          74,
+          26
+        ],
+        [
+          20,
+          34
+        ]
+      ]
+    }
+  }
+}

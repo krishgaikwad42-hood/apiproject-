@@ -1,0 +1,30 @@
+SMART HEALTHCARE DIAGNOSIS API - EDA SUMMARY
+==================================================
+1. Dataset Overview:
+   - Total records: 768
+   - Features: 8 clinical attributes + 1 target ('Outcome')
+   - Class Balance:
+     * Non-Diabetic (0): 500 (65.1%)
+     * Diabetic (1): 268 (34.9%)
+
+2. Disguised Zeros Detected:
+   Biologically impossible 0 values found in medical fields:
+   * Glucose: 5 zeros (0.65%)
+   * BloodPressure: 35 zeros (4.56%)
+   * SkinThickness: 227 zeros (29.56%)
+   * Insulin: 374 zeros (48.70%)
+   * BMI: 11 zeros (1.43%)
+
+   Recommendation: Replace 0 with NaN and impute using median strategy
+   computed strictly on the training set to prevent data leakage.
+
+3. Key Correlations with Diabetes Outcome:
+   - Top positive predictor: Glucose (r = 0.467)
+   - Second predictor: BMI (r = 0.293)
+   - Third predictor: Age (r = 0.238)
+   - Fourth predictor: Pregnancies (r = 0.222)
+
+4. Next Pipeline Step:
+   - Imputation + Feature Scaling (StandardScaler)
+   - Multi-model evaluation (Logistic Regression, Decision Tree, Random Forest, SVM, KNN, Naive Bayes)
+==================================================
