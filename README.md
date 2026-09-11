@@ -11,9 +11,9 @@ A production-grade, asynchronous Machine Learning REST API for early clinical di
 
 <div align="center">
 
-![Smart Healthcare Diagnosis Interactive Dashboard](eda_reports/dashboard_preview.png)
+![Smart Healthcare Diagnosis Interactive Dashboard](eda_reports/dashboard_ui.png)
 
-*Interactive Real-Time Clinical Decision Support Dashboard with Live Speedometer Gauge & Instant Risk Stratification*
+*Interactive Real-Time Clinical Decision Support Dashboard with Live Risk Analysis & Real-Time Parameter Feedback*
 
 </div>
 
