@@ -1,22 +1,29 @@
 """
-Pydantic Schemas for Request and Response Models
+Pydantic Schemas — Request and Response Models
 Smart Healthcare Diagnosis API
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Literal
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
+
+# ─── Request Schema ────────────────────────────────────────────────────────────
 
 class PatientVitalsInput(BaseModel):
     """Input payload containing patient clinical and demographic vitals."""
 
+    Gender: Optional[Literal["female", "male", "other"]] = Field(
+        default="female",
+        description="Biological sex / gender of the patient ('male', 'female', or 'other')",
+        examples=["male"],
+    )
     Pregnancies: int = Field(
-        ...,
+        default=0,
         ge=0,
         le=25,
-        description="Number of times pregnant",
-        examples=[2],
+        description="Number of times pregnant (automatically 0 for male patients)",
+        examples=[0],
     )
     Glucose: float = Field(
         ...,
@@ -68,6 +75,18 @@ class PatientVitalsInput(BaseModel):
         examples=[45],
     )
 
+    @field_validator("Gender", mode="before")
+    @classmethod
+    def normalize_gender(cls, v):
+        if isinstance(v, str):
+            v_clean = v.strip().lower()
+            if v_clean in ["m", "male", "man", "boy"]:
+                return "male"
+            if v_clean in ["f", "female", "woman", "girl"]:
+                return "female"
+            return v_clean
+        return v
+
     @field_validator("Age", mode="before")
     @classmethod
     def validate_age_positive(cls, v):
@@ -75,10 +94,20 @@ class PatientVitalsInput(BaseModel):
             raise ValueError("Age cannot be negative")
         return v
 
+    @model_validator(mode="after")
+    def validate_gender_and_pregnancies(self):
+        if self.Gender == "male" and self.Pregnancies > 0:
+            raise ValueError(
+                "Male patients cannot have Pregnancies > 0. Biological pregnancy count must be 0 for male patients."
+            )
+        return self
+
     @classmethod
     def model_validate(cls, obj: Any, *args, **kwargs):
         if isinstance(obj, dict):
             key_map = {
+                "gender": "Gender",
+                "sex": "Gender",
                 "pregnancies": "Pregnancies",
                 "glucose": "Glucose",
                 "bloodpressure": "BloodPressure",
@@ -103,6 +132,18 @@ class PatientVitalsInput(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
+                    "Gender": "male",
+                    "Pregnancies": 0,
+                    "Glucose": 140.0,
+                    "BloodPressure": 80.0,
+                    "SkinThickness": 25.0,
+                    "Insulin": 115.0,
+                    "BMI": 29.5,
+                    "DiabetesPedigreeFunction": 0.38,
+                    "Age": 42,
+                },
+                {
+                    "Gender": "female",
                     "Pregnancies": 2,
                     "Glucose": 150.0,
                     "BloodPressure": 85.0,
@@ -111,40 +152,138 @@ class PatientVitalsInput(BaseModel):
                     "BMI": 33.5,
                     "DiabetesPedigreeFunction": 0.45,
                     "Age": 45,
+                },
+            ]
+        }
+    }
+
+
+# ─── Response Schemas ──────────────────────────────────────────────────────────
+
+class PredictionResponse(BaseModel):
+    """Structured response returned by the /predict diagnosis endpoint."""
+
+    status: str = Field(
+        default="success",
+        description="Status of the prediction request ('success' or 'error')",
+    )
+    prediction_id: str = Field(
+        ...,
+        description="Unique UUID assigned to this prediction run for traceability",
+    )
+    prediction: str = Field(
+        ...,
+        description="Predicted diagnosis label: 'Diabetes' or 'No Diabetes'",
+    )
+    confidence: str = Field(
+        ...,
+        description="Model confidence in the prediction, formatted as a percentage string (e.g. '87.3%')",
+    )
+    probability: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Raw probability of a positive (Diabetes) outcome, in range [0.0, 1.0]",
+    )
+    risk_level: str = Field(
+        ...,
+        description="Stratified clinical risk level: 'Low Risk', 'Moderate Risk', or 'High Risk'",
+    )
+    model_used: str = Field(
+        ...,
+        description="Name of the machine learning algorithm used for this inference",
+    )
+    patient_gender: Optional[str] = Field(
+        default=None,
+        description="Reported patient biological sex: 'male' or 'female'",
+    )
+    timestamp: str = Field(
+        ...,
+        description="ISO-8601 timestamp of when the inference was executed (UTC)",
+    )
+
+
+class HealthResponse(BaseModel):
+    """System health check response with model and service status."""
+
+    status: str = Field(
+        ...,
+        description="Overall service status: 'healthy' or 'degraded'",
+    )
+    model_loaded: bool = Field(
+        ...,
+        description="Indicates whether the ML model artifact is loaded into memory",
+    )
+    preprocessor_loaded: bool = Field(
+        ...,
+        description="Indicates whether the scaler and imputer preprocessors are loaded",
+    )
+    selected_model: str = Field(
+        ...,
+        description="Name of the ML model selected during training and loaded at runtime",
+    )
+    version: str = Field(
+        ...,
+        description="API semantic version string (e.g. '1.0.0')",
+    )
+    timestamp: str = Field(
+        ...,
+        description="ISO-8601 timestamp of when the health check was executed",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "status": "healthy",
+                    "model_loaded": True,
+                    "preprocessor_loaded": True,
+                    "selected_model": "Decision Tree Classifier",
+                    "version": "1.0.0",
+                    "timestamp": "2026-09-10T08:00:00.000000",
                 }
             ]
         }
     }
 
 
-class PredictionResponse(BaseModel):
-    """Structured response returned by the diagnosis endpoint."""
-
-    status: str = Field(default="success", description="Status of prediction request")
-    prediction: str = Field(..., description="Predicted diagnosis ('Diabetes' or 'No Diabetes')")
-    confidence: str = Field(..., description="Prediction confidence formatted as percentage string")
-    probability: float = Field(..., description="Calculated probability of positive outcome (0.0 to 1.0)")
-    risk_level: str = Field(..., description="Categorized clinical risk level: Low Risk, Moderate Risk, or High Risk")
-    model_used: str = Field(..., description="Machine learning algorithm name used for inference")
-    timestamp: str = Field(..., description="Inference execution timestamp in ISO format")
-
-
-class HealthResponse(BaseModel):
-    """System health check response."""
-
-    status: str
-    model_loaded: bool
-    preprocessor_loaded: bool
-    selected_model: str
-    version: str
-    timestamp: str
-
-
 class RootResponse(BaseModel):
-    """Root endpoint response."""
+    """Root endpoint response with service metadata and navigation URLs."""
 
-    message: str
-    version: str
-    docs_url: str
-    health_url: str
-    predict_url: str
+    message: str = Field(
+        ...,
+        description="Welcome message describing the service",
+    )
+    version: str = Field(
+        ...,
+        description="API semantic version string",
+    )
+    docs_url: str = Field(
+        ...,
+        description="Path to the interactive Swagger UI documentation",
+    )
+    health_url: str = Field(
+        ...,
+        description="Path to the system health check endpoint",
+    )
+    predict_url: str = Field(
+        ...,
+        description="Path to the disease prediction (inference) endpoint",
+    )
+
+
+class MetricsResponse(BaseModel):
+    """Operational metrics snapshot for monitoring and observability."""
+
+    uptime_seconds: float = Field(
+        ...,
+        description="Seconds elapsed since the API process started",
+    )
+    version: str = Field(
+        ...,
+        description="API semantic version string",
+    )
+    timestamp: str = Field(
+        ...,
+        description="ISO-8601 timestamp of when metrics were captured",
+    )

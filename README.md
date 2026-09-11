@@ -112,9 +112,15 @@ Early diagnosis of chronic diseases such as Diabetes Mellitus is critical to pre
 
 ### Dataset Overview
 * **Source:** Pima Indians Diabetes Database (National Institute of Diabetes and Digestive and Kidney Diseases).
-* **Instances:** 768 patient records.
-* **Features:** 8 clinical features + 1 target (`Outcome`: 0 = No Diabetes, 1 = Diabetes).
+* **Instances:** 768 patient records (originally surveyed among females of Pima Indian heritage).
+* **Features:** 8 clinical features (`Pregnancies`, `Glucose`, `BloodPressure`, `SkinThickness`, `Insulin`, `BMI`, `DiabetesPedigreeFunction`, `Age`) + 1 target (`Outcome`: 0 = No Diabetes, 1 = Diabetes).
 * **Class Balance:** 500 Non-Diabetic (65.1%) vs 268 Diabetic (34.9%).
+
+### Dual-Gender Architecture (Male & Female Support)
+While the historical benchmark dataset captured female patient records (incorporating the `Pregnancies` feature), clinical deployment requires diagnostic support for **both Male and Female patients**:
+* **Biological Imputation:** For male patients, biological pregnancy count is physiologically **0**.
+* **Intelligent Schema:** The API accepts an optional `Gender: "male" | "female"`. When `Gender == "male"`, `Pregnancies` defaults and auto-locks to `0`. Passing `Pregnancies > 0` for a male patient triggers an informative HTTP 422 validation response.
+* **Interactive Dashboard:** The UI features an instant Gender toggle (`♀ Female` / `♂ Male`), auto-locking and dimming the pregnancy slider for males and updating demographic badges dynamically.
 
 ### The "Disguised Zeros" Problem
 In biological data, zero is physiologically impossible for certain parameters:

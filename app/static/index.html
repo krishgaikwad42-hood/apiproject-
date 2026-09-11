@@ -3,641 +3,833 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Healthcare Diagnosis - Interactive Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    if (!window.tailwind) {
-      document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');
-    }
-  </script>
+  <meta name="description" content="Smart Healthcare Diagnosis API - Diabetes risk prediction using patient vitals.">
+  <title>Smart Healthcare Diagnosis API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.9; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.03); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f1f5f9;
+      background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+                        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    .pulse-glow-high {
-      animation: pulseGlow 2s infinite ease-in-out;
-      box-shadow: 0 0 35px rgba(239, 68, 68, 0.45);
+
+    /* Topbar */
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
-    .pulse-glow-low {
-      box-shadow: 0 0 35px rgba(16, 185, 129, 0.35);
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.25);
     }
-    .pulse-glow-med {
-      box-shadow: 0 0 35px rgba(245, 158, 11, 0.4);
+    .topbar-title { font-size: 15px; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
+    .topbar-subtitle { font-size: 12px; color: #64748b; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #334155;
+      background: #f8fafc;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      font-weight: 500;
     }
-    /* Custom gradient slider styling */
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.2);
+    }
+    .link-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: #2563eb;
+      text-decoration: none;
+      padding: 5px 12px;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      background: #eff6ff;
+      transition: all 0.15s ease;
+    }
+    .link-btn:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    /* Layout */
+    .wrap {
+      max-width: 1040px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 24px;
+      align-items: start;
+      flex: 1;
+    }
+    @media (max-width: 768px) { .wrap { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Presets */
+    .presets-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .pbt {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #475569;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .pbt:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .pbt.risk { border-color: #fecaca; background: #fef2f2; color: #dc2626; }
+    .pbt.risk:hover { background: #fee2e2; border-color: #fca5a5; }
+    .pbt.safe { border-color: #bbf7d0; background: #f0fdf4; color: #16a34a; }
+    .pbt.safe:hover { background: #dcfce7; border-color: #86efac; }
+    .pbt.warn { border-color: #fde68a; background: #fffbeb; color: #d97706; }
+    .pbt.warn:hover { background: #fef3c7; border-color: #fcd34d; }
+
+    /* Form Fields */
+    .field { margin-bottom: 16px; }
+    .fh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .fl { font-size: 13px; font-weight: 600; color: #334155; }
+    .fvr { display: flex; align-items: center; gap: 6px; }
+    
+    .fbadge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .bn { background: #dcfce7; color: #15803d; border-color: #86efac; }
+    .bw { background: #fef3c7; color: #b45309; border-color: #fcd34d; }
+    .bd { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+    
+    .ni {
+      width: 68px;
+      padding: 4px 8px;
+      font-size: 13px;
+      font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+      font-weight: 600;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      text-align: right;
+      color: #0f172a;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    .ni:focus {
+      border-color: #3b82f6;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .unit { font-size: 11px; color: #64748b; font-weight: 500; }
+    
     input[type=range] {
+      width: 100%;
+      height: 6px;
       -webkit-appearance: none;
       appearance: none;
-      height: 7px;
       border-radius: 9999px;
-      background: #334155;
+      background: #e2e8f0;
       outline: none;
+      cursor: pointer;
+      margin-top: 5px;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      background: #38bdf8;
+      background: #2563eb;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
-      transition: transform 0.15s ease, background 0.2s ease;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(37,99,235,0.4);
+      transition: transform 0.1s ease;
     }
     input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
+      transform: scale(1.15);
     }
-    .gauge-arc-bg {
-      stroke: #1e293b;
-      stroke-width: 22;
-      fill: none;
+    input[type=range]:disabled { opacity: 0.4; cursor: not-allowed; }
+    
+    .rl { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 500; }
+
+    /* Gender Toggle */
+    .gbrow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+    .gbtn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      color: #475569;
+      transition: all 0.15s ease;
     }
-    .gauge-needle {
-      transform-origin: 150px 140px;
-      transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .gbtn:hover { background: #f1f5f9; }
+    .gbtn.af {
+      background: #fdf2f8;
+      border-color: #f472b6;
+      color: #be185d;
+      box-shadow: 0 1px 3px rgba(219, 39, 119, 0.15);
     }
+    .gbtn.am {
+      background: #eff6ff;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+    }
+    .pnote { font-size: 10px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+    .tcol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Submit Button */
+    .sbtn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.15s ease;
+    }
+    .sbtn:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+      transform: translateY(-1px);
+    }
+    .sbtn:active { transform: translateY(0); }
+    .sbtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    
+    .ltog {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #64748b;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    /* Diagnosis Results */
+    .rph { text-align: center; padding: 46px 20px; color: #94a3b8; }
+    .rph svg { stroke: #cbd5e1; margin-bottom: 12px; }
+    .rph p { font-size: 14px; font-weight: 600; color: #64748b; }
+    .rph small { font-size: 12px; color: #94a3b8; }
+    
+    .cnum {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 2px;
+      letter-spacing: -0.02em;
+    }
+    .csub { font-size: 11px; color: #64748b; text-align: center; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Meter */
+    .mwrap { margin: 18px 0 14px; }
+    .mlab { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+    .mbg { height: 10px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; }
+    .mbar {
+      height: 100%;
+      border-radius: 9999px;
+      background: #10b981;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+    }
+    .mbar.warn { background: #f59e0b; }
+    .mbar.danger { background: #ef4444; }
+
+    /* Result Banner */
+    .dbanner {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      margin-top: 14px;
+      transition: all 0.2s ease;
+    }
+    .dbanner .dl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .dbanner .dr { font-size: 18px; font-weight: 800; margin: 4px 0; letter-spacing: -0.01em; }
+    .dbanner .dn { font-size: 12px; font-weight: 500; line-height: 1.4; }
+    
+    .blow  { border-color: #bbf7d0; background: #f0fdf4; }
+    .blow  .dl { color: #15803d; }
+    .blow  .dr { color: #166534; }
+    .blow  .dn { color: #14532d; }
+    
+    .bmed  { border-color: #fde68a; background: #fffbeb; }
+    .bmed  .dl { color: #b45309; }
+    .bmed  .dr { color: #92400e; }
+    .bmed  .dn { color: #78350f; }
+    
+    .bhigh { border-color: #fca5a5; background: #fef2f2; }
+    .bhigh .dl { color: #dc2626; }
+    .bhigh .dr { color: #991b1b; }
+    .bhigh .dn { color: #7f1d1d; }
+
+    /* Indicators */
+    .inds { margin-top: 16px; }
+    .inds-t { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 8px; }
+    .irow { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
+    .irow:last-child { border-bottom: none; }
+    .iname { display: flex; align-items: center; gap: 8px; color: #334155; font-weight: 500; }
+    .idot { width: 8px; height: 8px; border-radius: 50%; }
+    .idot.g { background: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); }
+    .idot.y { background: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); }
+    .idot.r { background: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); }
+    .ival { font-size: 12px; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-weight: 600; color: #0f172a; }
+
+    /* JSON Box */
+    .aph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .apt { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cbtn {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      background: #f8fafc;
+      color: #334155;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .cbtn:hover { background: #e2e8f0; }
+    
+    pre {
+      font-size: 11px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      line-height: 1.55;
+      color: #f8fafc;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #64748b;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #ffffff;
+      margin-top: auto;
+    }
+    footer a { color: #2563eb; text-decoration: none; font-weight: 500; }
+    footer a:hover { color: #1d4ed8; text-decoration: underline; }
+    
+    /* JSON Syntax Colors */
+    .jk { color: #93c5fd; font-weight: 600; }  /* keys */
+    .js { color: #86efac; }                     /* strings */
+    .jn { color: #fde047; }                     /* numbers */
+    .jb { color: #c084fc; }                     /* booleans */
+    .jnl { color: #94a3b8; }                    /* null */
+    .hidden { display: none !important; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 selection:bg-cyan-500 selection:text-white font-sans antialiased">
-  <div class="max-w-6xl mx-auto space-y-6">
 
-    <!-- TOP HEADER BAR -->
-    <header class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
-      <div class="absolute -right-16 -top-16 w-56 h-56 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-16 -bottom-16 w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<body>
 
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
-            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-cyan-300">
-              Smart Healthcare Diagnosis API
-            </h1>
-            <p class="text-xs md:text-sm text-slate-400">Clinical Decision Support & Interactive Machine Learning Risk Engine</p>
-          </div>
-        </div>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-icon">
+      <svg width="20" height="20" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="topbar-title">Smart Healthcare Diagnosis API</div>
+      <div class="topbar-subtitle">Clinical Disease Prediction &middot; FastAPI + ML</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="status-badge"><span class="live-dot"></span>API Online</span>
+    <span class="status-badge"><span id="modelBadgeText">Loading model...</span></span>
+    <a href="/docs" target="_blank" class="link-btn">Swagger Docs</a>
+  </div>
+</div>
 
-        <!-- System Badges -->
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> API Online (FastAPI)
-          </span>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-950/80 text-cyan-300 border border-cyan-800/60 shadow-sm">
-            Model: Decision Tree (Recall: 72.2%)
-          </span>
-          <a href="/docs" target="_blank" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-            Swagger /docs &rarr;
-          </a>
-        </div>
+<div class="wrap">
+  <div>
+    <div class="card">
+      <div class="card-title">
+        <span>Patient Clinical Vitals</span>
+        <label class="ltog">
+          <input type="checkbox" id="realtimeToggle" checked style="accent-color:#2563eb;">
+          Live Predict
+        </label>
       </div>
 
-      <!-- Quick Preset Selector -->
-      <div class="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span class="text-slate-400 font-medium">Quick Clinical Presets:</span>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="loadPreset('diabetic')" class="px-3 py-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 transition shadow-sm hover:scale-105 active:scale-95 font-medium flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span> High Risk Diabetic
-          </button>
-          <button onclick="loadPreset('moderate')" class="px-3 py-1.5 rounded-lg bg-amber-950/70 hover:bg-amber-900/80 text-amber-300 border border-amber-800/60 transition shadow-sm hover:scale-105 active:scale-95 font-medium flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Moderate / Prediabetic
-          </button>
-          <button onclick="loadPreset('healthy')" class="px-3 py-1.5 rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800/60 transition shadow-sm hover:scale-105 active:scale-95 font-medium flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Healthy Profile
-          </button>
-          <button onclick="resetDefaults()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition font-medium">
-            Reset
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- MAIN TWO-COLUMN WORKSPACE -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- LEFT COLUMN: INTERACTIVE VITALS CONTROLS (7 COLS) -->
-      <div class="lg:col-span-7 space-y-4">
-        <div class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-5">
-            <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
-              Patient Vitals Input Controls
-            </h2>
-            <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-400 flex items-center gap-1.5 cursor-pointer select-none">
-                <input type="checkbox" id="realtimeToggle" checked class="w-3.5 h-3.5 accent-cyan-500 rounded">
-                Live Auto-Predict
-              </label>
-            </div>
-          </div>
-
-          <form id="vitalsForm" onsubmit="event.preventDefault(); runDiagnosis();" class="space-y-4">
-
-            <!-- 1. GLUCOSE (KEY FACTOR) -->
-            <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-              <div class="flex justify-between items-center mb-1.5">
-                <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Glucose (2-hr Oral Test)
-                </label>
-                <div class="flex items-center gap-2">
-                  <span id="glucoseBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800">PREDIABETIC</span>
-                  <input type="number" id="num_Glucose" min="40" max="500" step="1" value="112" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('Glucose', this.value)">
-                  <span class="text-xs text-slate-500 font-mono">mg/dL</span>
-                </div>
-              </div>
-              <input type="range" id="range_Glucose" min="40" max="500" step="1" value="112" class="w-full" oninput="syncControl('Glucose', this.value)">
-              <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
-                <span>40 (hypo)</span>
-                <span class="text-emerald-400">Normal (&lt;100)</span>
-                <span class="text-amber-400">Pre (100-125)</span>
-                <span class="text-rose-400">Diabetic (&ge;126)</span>
-                <span>500</span>
-              </div>
-            </div>
-
-            <!-- 2. BMI -->
-            <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-              <div class="flex justify-between items-center mb-1.5">
-                <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Body Mass Index (BMI)
-                </label>
-                <div class="flex items-center gap-2">
-                  <span id="bmiBadge" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800">OBESE</span>
-                  <input type="number" id="num_BMI" min="10" max="75" step="0.1" value="53.8" class="w-20 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold focus:border-cyan-400 focus:outline-none" oninput="syncControl('BMI', this.value)">
-                  <span class="text-xs text-slate-500 font-mono">kg/m²</span>
-                </div>
-              </div>
-              <input type="range" id="range_BMI" min="10" max="75" step="0.1" value="53.8" class="w-full" oninput="syncControl('BMI', this.value)">
-              <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
-                <span>10.0</span>
-                <span class="text-emerald-400">18.5 - 24.9</span>
-                <span class="text-amber-400">25.0 - 29.9</span>
-                <span class="text-rose-400">&ge; 30.0</span>
-                <span>75.0</span>
-              </div>
-            </div>
-
-            <!-- 3. AGE & PREGNANCIES (GRID) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <!-- Age -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Age</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_Age" min="1" max="120" step="1" value="28" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Age', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">yrs</span>
-                  </div>
-                </div>
-                <input type="range" id="range_Age" min="1" max="120" step="1" value="28" class="w-full" oninput="syncControl('Age', this.value)">
-              </div>
-
-              <!-- Pregnancies -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Pregnancies</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_Pregnancies" min="0" max="20" step="1" value="6" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Pregnancies', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">times</span>
-                  </div>
-                </div>
-                <input type="range" id="range_Pregnancies" min="0" max="20" step="1" value="6" class="w-full" oninput="syncControl('Pregnancies', this.value)">
-              </div>
-            </div>
-
-            <!-- 4. BLOOD PRESSURE & INSULIN (GRID) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <!-- Blood Pressure -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Blood Pressure</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_BloodPressure" min="30" max="180" step="1" value="67" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('BloodPressure', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">mmHg</span>
-                  </div>
-                </div>
-                <input type="range" id="range_BloodPressure" min="30" max="180" step="1" value="67" class="w-full" oninput="syncControl('BloodPressure', this.value)">
-              </div>
-
-              <!-- Insulin -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Serum Insulin</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_Insulin" min="0" max="600" step="1" value="119" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('Insulin', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">µU/ml</span>
-                  </div>
-                </div>
-                <input type="range" id="range_Insulin" min="0" max="600" step="1" value="119" class="w-full" oninput="syncControl('Insulin', this.value)">
-              </div>
-            </div>
-
-            <!-- 5. SKIN THICKNESS & PEDIGREE (GRID) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <!-- Skin Thickness -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Skin Thickness</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_SkinThickness" min="0" max="80" step="1" value="25" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('SkinThickness', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">mm</span>
-                  </div>
-                </div>
-                <input type="range" id="range_SkinThickness" min="0" max="80" step="1" value="25" class="w-full" oninput="syncControl('SkinThickness', this.value)">
-              </div>
-
-              <!-- Pedigree Function -->
-              <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800/70 hover:border-cyan-500/40 transition">
-                <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-300">Diabetes Pedigree</label>
-                  <div class="flex items-center gap-1">
-                    <input type="number" id="num_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.79" class="w-16 px-2 py-1 text-right text-xs bg-slate-950 border border-slate-700 rounded-lg text-cyan-300 font-mono font-bold" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
-                    <span class="text-xs text-slate-500 font-mono">score</span>
-                  </div>
-                </div>
-                <input type="range" id="range_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.79" class="w-full" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
-              </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 shadow-lg shadow-cyan-600/30 active:scale-[0.99] transition flex items-center justify-center gap-2">
-              <svg class="w-5 h-5 text-white animate-spin hidden" id="spinnerIcon" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
-              <span>Run Diagnostic Assessment</span>
-            </button>
-          </form>
-        </div>
+      <div class="presets-label">Sample Case Presets</div>
+      <div class="presets">
+        <button class="pbt risk" onclick="loadPreset('male_diabetic')">Male &middot; High Risk</button>
+        <button class="pbt safe" onclick="loadPreset('male_healthy')">Male &middot; Healthy</button>
+        <button class="pbt risk" onclick="loadPreset('female_diabetic')">Female &middot; High Risk</button>
+        <button class="pbt warn" onclick="loadPreset('female_moderate')">Female &middot; Prediabetic</button>
+        <button class="pbt" onclick="resetDefaults()">Reset</button>
       </div>
 
-      <!-- RIGHT COLUMN: DYNAMIC COLOR RISK GAUGE & DIAGNOSTIC RESULT (5 COLS) -->
-      <div class="lg:col-span-5 space-y-4">
+      <form id="vitalsForm" onsubmit="event.preventDefault(); runDiagnosis();">
 
-        <!-- DYNAMIC RESULT CARD WITH INTERACTIVE COLOR TRANSITIONS -->
-        <div id="resultCard" class="rounded-2xl border p-6 shadow-2xl transition-all duration-500 relative overflow-hidden bg-slate-900/90 border-slate-800">
-
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-4">
-            <span class="text-xs uppercase tracking-widest font-extrabold text-slate-400">Diagnostic Risk Analysis</span>
-            <span id="latencyTag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">Latency: 2ms</span>
+        <div class="field">
+          <div class="fh">
+            <span class="fl">Biological Sex</span>
+            <span id="genderNotice" style="font-size:11px;color:#64748b;">Female &middot; Pregnancies active</span>
           </div>
+          <div class="gbrow">
+            <button type="button" id="genderBtnFemale" class="gbtn af" onclick="selectGender('female')">Female</button>
+            <button type="button" id="genderBtnMale" class="gbtn" onclick="selectGender('male')">Male</button>
+          </div>
+          <input type="hidden" id="selected_Gender" value="female">
+        </div>
 
-          <!-- SVG SPEEDOMETER GAUGE -->
-          <div class="flex flex-col items-center justify-center my-2 relative">
-            <svg viewBox="0 0 300 170" class="w-64 h-36">
-              <!-- Defs for vibrant linear gradients -->
-              <defs>
-                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#10b981" />
-                  <stop offset="35%" stop-color="#34d399" />
-                  <stop offset="60%" stop-color="#f59e0b" />
-                  <stop offset="85%" stop-color="#f97316" />
-                  <stop offset="100%" stop-color="#ef4444" />
-                </linearGradient>
-              </defs>
-              <!-- Background Arc -->
-              <path d="M 30 140 A 120 120 0 0 1 270 140" fill="none" stroke="#1e293b" stroke-width="22" stroke-linecap="round" />
-              <!-- Gradient Colored Arc -->
-              <path id="gaugeMeterPath" d="M 30 140 A 120 120 0 0 1 270 140" fill="none" stroke="url(#gaugeGrad)" stroke-width="20" stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="0" />
-              <!-- Gauge Needle -->
-              <g id="needleGroup" class="gauge-needle" style="transform: rotate(45deg);">
-                <circle cx="150" cy="140" r="10" fill="#e2e8f0" stroke="#0f172a" stroke-width="3" />
-                <polygon points="147,140 153,140 150,30" fill="#38bdf8" />
-              </g>
-            </svg>
-
-            <!-- Probability Overlay -->
-            <div class="text-center -mt-6">
-              <div id="confidenceNumber" class="text-4xl font-extrabold font-mono tracking-tight text-white">90.1%</div>
-              <div class="text-xs uppercase tracking-wider font-semibold text-slate-400 mt-0.5">Disease Risk Likelihood</div>
+        <div class="field">
+          <div class="fh">
+            <span class="fl" title="Plasma glucose from 2-hr oral glucose tolerance test">Plasma Glucose</span>
+            <div class="fvr">
+              <span id="glucoseBadge" class="fbadge bw">Prediabetic</span>
+              <input type="number" id="num_Glucose" class="ni" min="40" max="500" step="1" value="112" oninput="syncControl('Glucose', this.value)">
+              <span class="unit">mg/dL</span>
             </div>
           </div>
+          <input type="range" id="range_Glucose" min="40" max="500" step="1" value="112" oninput="syncControl('Glucose', this.value)">
+          <div class="rl"><span>40</span><span style="color:#10b981;">&lt;100 Normal</span><span style="color:#f59e0b;">100-125 Prediabetic</span><span style="color:#ef4444;">&ge;126 Diabetic</span><span>500</span></div>
+        </div>
 
-          <!-- PRIMARY DIAGNOSIS BADGE -->
-          <div id="diagnosisBanner" class="mt-4 p-4 rounded-xl text-center border transition-all duration-500 bg-rose-950/80 border-rose-800 text-rose-200">
-            <div class="text-xs uppercase tracking-widest font-extrabold text-rose-400" id="riskLevelText">High Risk Detected</div>
-            <div class="text-2xl font-black tracking-wide my-1" id="predictionText">Diabetes Positive</div>
-            <div class="text-xs text-rose-300/80" id="recommendationText">Recommend immediate confirmatory clinical HbA1c testing.</div>
-          </div>
-
-          <!-- VITALS RISK CONTRIBUTION BREAKDOWN -->
-          <div class="mt-5 space-y-2.5">
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Physiological Risk Indicators</div>
-
-            <!-- Glucose Indicator -->
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/40 text-xs">
-              <span class="text-slate-300 flex items-center gap-2">
-                <span id="dotGlucose" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Glucose Level
-              </span>
-              <span id="textGlucoseStatus" class="font-bold font-mono text-rose-400">150 mg/dL (Elevated)</span>
-            </div>
-
-            <!-- BMI Indicator -->
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/40 text-xs">
-              <span class="text-slate-300 flex items-center gap-2">
-                <span id="dotBMI" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Body Mass Index
-              </span>
-              <span id="textBMIStatus" class="font-bold font-mono text-rose-400">33.5 (Obese)</span>
-            </div>
-
-            <!-- Age & Pedigree Indicator -->
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/40 text-xs">
-              <span class="text-slate-300 flex items-center gap-2">
-                <span id="dotPedigree" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Genetic Pedigree
-              </span>
-              <span id="textPedigreeStatus" class="font-bold font-mono text-amber-400">0.45 (Moderate Risk)</span>
+        <div class="field">
+          <div class="fh">
+            <span class="fl" title="Body Mass Index">Body Mass Index (BMI)</span>
+            <div class="fvr">
+              <span id="bmiBadge" class="fbadge bd">Obese</span>
+              <input type="number" id="num_BMI" class="ni" min="10" max="75" step="0.1" value="53.8" oninput="syncControl('BMI', this.value)">
+              <span class="unit">kg/m²</span>
             </div>
           </div>
+          <input type="range" id="range_BMI" min="10" max="75" step="0.1" value="53.8" oninput="syncControl('BMI', this.value)">
+          <div class="rl"><span>10</span><span style="color:#10b981;">18.5-24.9</span><span style="color:#f59e0b;">25-29.9</span><span style="color:#ef4444;">&ge;30 Obese</span><span>75</span></div>
+        </div>
 
-          <!-- MODEL FOOTER -->
-          <div class="mt-5 pt-3 border-t border-slate-800/70 flex justify-between items-center text-[11px] text-slate-500 font-mono">
-            <span>Model: Decision Tree Classifier</span>
-            <span id="statusIndicator" class="text-emerald-400 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
-            </span>
+        <div class="tcol">
+          <div class="field">
+            <div class="fh">
+              <span class="fl">Patient Age</span>
+              <div class="fvr">
+                <input type="number" id="num_Age" class="ni" min="1" max="120" step="1" value="28" oninput="syncControl('Age', this.value)">
+                <span class="unit">yrs</span>
+              </div>
+            </div>
+            <input type="range" id="range_Age" min="1" max="120" step="1" value="28" oninput="syncControl('Age', this.value)">
+          </div>
+          <div class="field" id="pregnanciesContainer">
+            <div class="fh">
+              <span class="fl">Pregnancies <span id="malePregnancyLockBadge" class="hidden" style="font-size:10px;color:#94a3b8;">(Locked)</span></span>
+              <div class="fvr">
+                <input type="number" id="num_Pregnancies" class="ni" min="0" max="20" step="1" value="6" oninput="syncControl('Pregnancies', this.value)">
+                <span class="unit">count</span>
+              </div>
+            </div>
+            <input type="range" id="range_Pregnancies" min="0" max="20" step="1" value="6" oninput="syncControl('Pregnancies', this.value)">
+            <div id="malePregnancyMsg" class="pnote hidden">Locked to 0 for male patients</div>
           </div>
         </div>
 
-        <!-- QUICK API ENDPOINT REFERENCE CARD -->
-        <div class="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 text-xs space-y-2 font-mono">
-          <div class="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">FastAPI Endpoint Live Call</div>
-          <div class="flex items-center justify-between text-slate-300">
-            <span>POST /predict</span>
-            <span class="text-emerald-400">200 OK</span>
+        <div class="tcol">
+          <div class="field">
+            <div class="fh">
+              <span class="fl" title="Diastolic blood pressure">Blood Pressure</span>
+              <div class="fvr">
+                <input type="number" id="num_BloodPressure" class="ni" min="30" max="180" step="1" value="67" oninput="syncControl('BloodPressure', this.value)">
+                <span class="unit">mmHg</span>
+              </div>
+            </div>
+            <input type="range" id="range_BloodPressure" min="30" max="180" step="1" value="67" oninput="syncControl('BloodPressure', this.value)">
           </div>
-          <div class="text-[11px] text-slate-400 bg-slate-950 p-2 rounded border border-slate-800 overflow-x-auto">
-            {"prediction": "<span id="apiPredPreview" class="text-rose-400">Diabetes</span>", "confidence": "<span id="apiConfPreview" class="text-cyan-300">90.1%</span>", "risk_level": "<span id="apiRiskPreview" class="text-rose-400">High Risk</span>"}
+          <div class="field">
+            <div class="fh">
+              <span class="fl" title="2-Hour serum insulin">Serum Insulin</span>
+              <div class="fvr">
+                <input type="number" id="num_Insulin" class="ni" min="0" max="600" step="1" value="119" oninput="syncControl('Insulin', this.value)">
+                <span class="unit">uU/ml</span>
+              </div>
+            </div>
+            <input type="range" id="range_Insulin" min="0" max="600" step="1" value="119" oninput="syncControl('Insulin', this.value)">
           </div>
         </div>
 
-      </div>
+        <div class="tcol">
+          <div class="field">
+            <div class="fh">
+              <span class="fl" title="Triceps skin fold thickness (mm)">Skin Thickness</span>
+              <div class="fvr">
+                <input type="number" id="num_SkinThickness" class="ni" min="0" max="80" step="1" value="25" oninput="syncControl('SkinThickness', this.value)">
+                <span class="unit">mm</span>
+              </div>
+            </div>
+            <input type="range" id="range_SkinThickness" min="0" max="80" step="1" value="25" oninput="syncControl('SkinThickness', this.value)">
+          </div>
+          <div class="field">
+            <div class="fh">
+              <span class="fl" title="Genetic diabetes risk score">Pedigree Score</span>
+              <div class="fvr">
+                <input type="number" id="num_DiabetesPedigreeFunction" class="ni" min="0.05" max="2.5" step="0.01" value="0.79" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
+              </div>
+            </div>
+            <input type="range" id="range_DiabetesPedigreeFunction" min="0.05" max="2.5" step="0.01" value="0.79" oninput="syncControl('DiabetesPedigreeFunction', this.value)">
+          </div>
+        </div>
+
+        <button type="submit" class="sbtn" id="submitBtn">
+          <svg id="runIcon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          <span id="submitLabel">Run Clinical Diagnosis</span>
+        </button>
+      </form>
     </div>
   </div>
 
-  <script>
-    const API_BASE = window.location.origin.includes('8000') ? window.location.origin : 'http://127.0.0.1:8000';
+  <div>
+    <div class="card">
+      <div class="card-title">
+        <span>Diagnosis Result</span>
+        <span id="latencyTag" style="font-size:11px;color:#64748b;font-weight:600;"></span>
+      </div>
 
-    const presets = {
-      diabetic: {
-        Pregnancies: 6,
-        Glucose: 112,
-        BloodPressure: 67,
-        SkinThickness: 25,
-        Insulin: 119,
-        BMI: 53.8,
-        DiabetesPedigreeFunction: 0.79,
-        Age: 28
-      },
-      moderate: {
-        Pregnancies: 3,
-        Glucose: 118,
-        BloodPressure: 78,
-        SkinThickness: 28,
-        Insulin: 110,
-        BMI: 28.4,
-        DiabetesPedigreeFunction: 0.45,
-        Age: 38
-      },
-      healthy: {
-        Pregnancies: 1,
-        Glucose: 82,
-        BloodPressure: 68,
-        SkinThickness: 20,
-        Insulin: 55,
-        BMI: 21.4,
-        DiabetesPedigreeFunction: 0.18,
-        Age: 22
-      }
-    };
+      <div id="awaitingState" class="rph">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <p>Awaiting Patient Data</p>
+        <small>Adjust vitals on the left to see live prediction</small>
+      </div>
 
-    function syncControl(field, val) {
-      const numElem = document.getElementById('num_' + field);
-      const rangeElem = document.getElementById('range_' + field);
-      if (numElem) numElem.value = val;
-      if (rangeElem) rangeElem.value = val;
+      <div id="resultContent" style="display:none;">
+        <div class="cnum" id="confidenceNumber">-</div>
+        <div class="csub">Risk Probability</div>
 
-      updateCategoryBadges();
+        <div class="mwrap">
+          <div class="mlab"><span>Low Risk</span><span>Moderate</span><span>High Risk</span></div>
+          <div class="mbg"><div class="mbar" id="meterBar" style="width:0%;"></div></div>
+        </div>
 
-      const isLive = document.getElementById('realtimeToggle').checked;
-      if (isLive) {
-        debouncedPredict();
-      }
-    }
+        <div class="dbanner blow" id="diagnosisBanner">
+          <div class="dl" id="riskLevelText">-</div>
+          <div class="dr" id="predictionText">-</div>
+          <div class="dn" id="recommendationText">-</div>
+        </div>
 
-    function updateCategoryBadges() {
-      const glucose = parseFloat(document.getElementById('num_Glucose').value) || 0;
-      const glucoseBadge = document.getElementById('glucoseBadge');
-      const dotGlucose = document.getElementById('dotGlucose');
-      const textGlucoseStatus = document.getElementById('textGlucoseStatus');
+        <div class="inds">
+          <div class="inds-t">Key Clinical Indicators</div>
+          <div class="irow">
+            <span class="iname"><span class="idot r" id="dotGlucose"></span>Plasma Glucose</span>
+            <span class="ival" id="textGlucoseStatus">-</span>
+          </div>
+          <div class="irow">
+            <span class="iname"><span class="idot r" id="dotBMI"></span>Body Mass Index</span>
+            <span class="ival" id="textBMIStatus">-</span>
+          </div>
+          <div class="irow">
+            <span class="iname"><span class="idot y" id="dotPedigree"></span>Pedigree Score</span>
+            <span class="ival" id="textPedigreeStatus">-</span>
+          </div>
+        </div>
 
-      if (glucose >= 126) {
-        glucoseBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800";
-        glucoseBadge.innerText = "Diabetic (High)";
-        dotGlucose.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-        textGlucoseStatus.className = "font-bold font-mono text-rose-400";
-        textGlucoseStatus.innerText = `${glucose} mg/dL (Diabetic Risk)`;
-      } else if (glucose >= 100) {
-        glucoseBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800";
-        glucoseBadge.innerText = "PREDIABETIC";
-        dotGlucose.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
-        textGlucoseStatus.className = "font-bold font-mono text-amber-400";
-        textGlucoseStatus.innerText = `${glucose} mg/dL (Borderline)`;
-      } else {
-        glucoseBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-        glucoseBadge.innerText = "NORMAL";
-        dotGlucose.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-        textGlucoseStatus.className = "font-bold font-mono text-emerald-400";
-        textGlucoseStatus.innerText = `${glucose} mg/dL (Optimal)`;
-      }
+        <div style="margin-top:14px;padding-top:10px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;font-size:11px;color:#64748b;font-weight:500;">
+          <span id="modelFooter">Model: -</span>
+          <span id="patientProfileTag">-</span>
+        </div>
+      </div>
+    </div>
 
-      const bmi = parseFloat(document.getElementById('num_BMI').value) || 0;
-      const bmiBadge = document.getElementById('bmiBadge');
-      const dotBMI = document.getElementById('dotBMI');
-      const textBMIStatus = document.getElementById('textBMIStatus');
+    <div class="card" style="margin-top:18px;">
+      <div class="aph">
+        <span class="apt">Live JSON Response</span>
+        <button class="cbtn" onclick="copyApiJson()"><span id="copyBtnLabel">Copy JSON</span></button>
+      </div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:8px;font-weight:500;">POST /predict &rarr; <span style="color:#10b981;font-weight:700;">200 OK</span></div>
+      <pre id="apiJsonPreview"><span style="color:#64748b;">// Run a diagnosis to see real-time response</span></pre>
+    </div>
+  </div>
+</div>
 
-      if (bmi >= 30.0) {
-        bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-rose-950 text-rose-400 border border-rose-800";
-        bmiBadge.innerText = "OBESE";
-        dotBMI.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-        textBMIStatus.className = "font-bold font-mono text-rose-400";
-        textBMIStatus.innerText = `${bmi.toFixed(1)} (Classified Obese)`;
-      } else if (bmi >= 25.0) {
-        bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800";
-        bmiBadge.innerText = "OVERWEIGHT";
-        dotBMI.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
-        textBMIStatus.className = "font-bold font-mono text-amber-400";
-        textBMIStatus.innerText = `${bmi.toFixed(1)} (Overweight)`;
-      } else {
-        bmiBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-        bmiBadge.innerText = "NORMAL";
-        dotBMI.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-        textBMIStatus.className = "font-bold font-mono text-emerald-400";
-        textBMIStatus.innerText = `${bmi.toFixed(1)} (Healthy Weight)`;
-      }
+<footer>
+  <span>Smart Healthcare API &middot; <strong id="footerVersion" style="color:#334155;">v1.0.0</strong></span>
+  <span style="display:flex;gap:14px;">
+    <a href="/docs" target="_blank">/docs</a>
+    <a href="/redoc" target="_blank">/redoc</a>
+    <a href="/health" target="_blank">/health</a>
+    <a href="/metrics" target="_blank">/metrics</a>
+  </span>
+  <span>Production ML Architecture</span>
+</footer>
 
-      const pedigree = parseFloat(document.getElementById('num_DiabetesPedigreeFunction').value) || 0;
-      const dotPedigree = document.getElementById('dotPedigree');
-      const textPedigreeStatus = document.getElementById('textPedigreeStatus');
-      if (dotPedigree && textPedigreeStatus) {
-        if (pedigree >= 0.70) {
-          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-          textPedigreeStatus.className = "font-bold font-mono text-rose-400";
-          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (High Genetic Risk)`;
-        } else if (pedigree >= 0.40) {
-          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
-          textPedigreeStatus.className = "font-bold font-mono text-amber-400";
-          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (Moderate Risk)`;
-        } else {
-          dotPedigree.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-          textPedigreeStatus.className = "font-bold font-mono text-emerald-400";
-          textPedigreeStatus.innerText = `${pedigree.toFixed(2)} (Low Family Risk)`;
-        }
-      }
-    }
+<script>
+'use strict';
+const API_BASE = window.location.origin.includes('8000') ? window.location.origin : 'http://127.0.0.1:8000';
+let currentGender = 'female', hasRunOnce = false, lastResultData = null;
+const PRESETS = {
+  male_diabetic:   { Gender:'male',   Pregnancies:0, Glucose:165, BloodPressure:88, SkinThickness:32, Insulin:175, BMI:34.2, DiabetesPedigreeFunction:0.65, Age:52 },
+  male_healthy:    { Gender:'male',   Pregnancies:0, Glucose:88,  BloodPressure:72, SkinThickness:18, Insulin:60,  BMI:22.8, DiabetesPedigreeFunction:0.22, Age:29 },
+  female_diabetic: { Gender:'female', Pregnancies:6, Glucose:148, BloodPressure:72, SkinThickness:35, Insulin:125, BMI:33.6, DiabetesPedigreeFunction:0.62, Age:50 },
+  female_moderate: { Gender:'female', Pregnancies:2, Glucose:115, BloodPressure:74, SkinThickness:24, Insulin:95,  BMI:27.5, DiabetesPedigreeFunction:0.38, Age:34 }
+};
+window.addEventListener('DOMContentLoaded', () => { fetchModelInfo(); selectGender('female'); });
+document.addEventListener('keydown', e => { if (e.key==='Enter' && !['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement.tagName)) runDiagnosis(); });
 
-    function loadPreset(key) {
-      const p = presets[key];
-      if (!p) return;
-      for (const [k, v] of Object.entries(p)) {
-        syncControl(k, v);
-      }
-      runDiagnosis();
-    }
+async function fetchModelInfo() {
+  try {
+    const res = await fetch(API_BASE+'/health'); if (!res.ok) return;
+    const d = await res.json(), name = d.selected_model||'Unknown';
+    document.getElementById('modelBadgeText').textContent = 'Model: '+name;
+    document.getElementById('modelFooter').textContent = 'Model: '+name;
+    document.getElementById('footerVersion').textContent = 'v'+(d.version||'1.0.0');
+  } catch(_) { document.getElementById('modelBadgeText').textContent = 'Model: Offline'; }
+}
 
-    function resetDefaults() {
-      loadPreset('diabetic');
-    }
+function selectGender(gender) {
+  currentGender = (gender||'female').toLowerCase();
+  document.getElementById('selected_Gender').value = currentGender;
+  const btnF=document.getElementById('genderBtnFemale'), btnM=document.getElementById('genderBtnMale');
+  const numP=document.getElementById('num_Pregnancies'), rangeP=document.getElementById('range_Pregnancies');
+  const lock=document.getElementById('malePregnancyLockBadge'), msg=document.getElementById('malePregnancyMsg');
+  const cont=document.getElementById('pregnanciesContainer'), notice=document.getElementById('genderNotice');
+  if (currentGender==='male') {
+    btnM.className='gbtn am'; btnF.className='gbtn';
+    notice.textContent='Male · Pregnancies locked to 0';
+    numP.value=0; numP.disabled=true; rangeP.value=0; rangeP.disabled=true;
+    cont.style.opacity='0.5'; lock.classList.remove('hidden'); msg.classList.remove('hidden');
+  } else {
+    btnF.className='gbtn af'; btnM.className='gbtn';
+    notice.textContent='Female · Pregnancies active';
+    numP.disabled=false; rangeP.disabled=false; cont.style.opacity='1';
+    lock.classList.add('hidden'); msg.classList.add('hidden');
+  }
+  updatePatientProfileTag();
+  if (document.getElementById('realtimeToggle').checked) debouncedPredict();
+}
 
-    let debounceTimer;
-    function debouncedPredict() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(runDiagnosis, 150);
-    }
+function updatePatientProfileTag() {
+  const age = document.getElementById('num_Age') ? document.getElementById('num_Age').value : '-';
+  const el = document.getElementById('patientProfileTag'); if (!el) return;
+  el.textContent = currentGender==='male' ? 'Male, '+age+' yrs' : 'Female, '+age+' yrs';
+}
 
-    async function runDiagnosis() {
-      const payload = {
-        Pregnancies: parseInt(document.getElementById('num_Pregnancies').value) || 0,
-        Glucose: parseFloat(document.getElementById('num_Glucose').value) || 0,
-        BloodPressure: parseFloat(document.getElementById('num_BloodPressure').value) || 0,
-        SkinThickness: parseFloat(document.getElementById('num_SkinThickness').value) || 0,
-        Insulin: parseFloat(document.getElementById('num_Insulin').value) || 0,
-        BMI: parseFloat(document.getElementById('num_BMI').value) || 0,
-        DiabetesPedigreeFunction: parseFloat(document.getElementById('num_DiabetesPedigreeFunction').value) || 0,
-        Age: parseInt(document.getElementById('num_Age').value) || 18
-      };
+function syncControl(field, val) {
+  const num=document.getElementById('num_'+field), range=document.getElementById('range_'+field);
+  if (num) num.value=val; if (range) range.value=val;
+  updateCategoryBadges(); if (field==='Age') updatePatientProfileTag();
+  if (document.getElementById('realtimeToggle').checked) debouncedPredict();
+}
 
-      const t0 = performance.now();
-      try {
-        const res = await fetch(`${API_BASE}/predict`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+function updateCategoryBadges() {
+  const gv = id => parseFloat(document.getElementById(id) ? document.getElementById(id).value : 0)||0;
+  const glucose=gv('num_Glucose'), bmi=gv('num_BMI'), pedigree=gv('num_DiabetesPedigreeFunction');
+  const gb=document.getElementById('glucoseBadge');
+  if (gb) {
+    if(glucose>=126){gb.className='fbadge bd';gb.textContent='Diabetic';}
+    else if(glucose>=100){gb.className='fbadge bw';gb.textContent='Prediabetic';}
+    else{gb.className='fbadge bn';gb.textContent='Normal';}
+  }
+  const bb=document.getElementById('bmiBadge');
+  if (bb) {
+    if(bmi>=30){bb.className='fbadge bd';bb.textContent='Obese';}
+    else if(bmi>=25){bb.className='fbadge bw';bb.textContent='Overweight';}
+    else{bb.className='fbadge bn';bb.textContent='Normal';}
+  }
+  if (!hasRunOnce) return;
+  setIndicator('Glucose', glucose>=126?'r':glucose>=100?'y':'g', glucose+' mg/dL · '+(glucose>=126?'Diabetic':glucose>=100?'Borderline':'Optimal'));
+  setIndicator('BMI', bmi>=30?'r':bmi>=25?'y':'g', bmi.toFixed(1)+' · '+(bmi>=30?'Obese':bmi>=25?'Overweight':'Healthy'));
+  setIndicator('Pedigree', pedigree>=0.70?'r':pedigree>=0.40?'y':'g', pedigree.toFixed(2)+' · '+(pedigree>=0.70?'High':pedigree>=0.40?'Moderate':'Low'));
+}
 
-        if (!res.ok) throw new Error("API error " + res.status);
-        const data = await res.json();
-        const latency = (performance.now() - t0).toFixed(1);
-        applyPredictionResult(data, latency);
-      } catch (err) {
-        // Local intelligent fallback algorithm if API is not directly reachable
-        const latency = (performance.now() - t0).toFixed(1);
-        const localData = computeLocalFallback(payload);
-        applyPredictionResult(localData, latency + " (local)");
-      }
-    }
+function setIndicator(key, color, label) {
+  const dot=document.getElementById('dot'+key), text=document.getElementById('text'+key+'Status');
+  if (dot) dot.className='idot '+color; if (text) text.textContent=label;
+}
 
-    function computeLocalFallback(p) {
-      // High-precision emulation of the trained Decision Tree & feature weights
-      let score = 0;
-      if (p.Glucose > 127) score += 0.45;
-      else if (p.Glucose > 105) score += 0.20;
+function loadPreset(key) {
+  const p=PRESETS[key]; if (!p) return;
+  if (p.Gender) selectGender(p.Gender);
+  for (const k of Object.keys(p)) { if (k!=='Gender') syncControl(k, p[k]); }
+  runDiagnosis();
+}
+function resetDefaults() { loadPreset('female_moderate'); }
 
-      if (p.BMI > 30) score += 0.25;
-      else if (p.BMI > 25) score += 0.12;
+let debounceTimer;
+function debouncedPredict() { clearTimeout(debounceTimer); debounceTimer=setTimeout(runDiagnosis, 220); }
 
-      if (p.Age > 40) score += 0.15;
-      if (p.DiabetesPedigreeFunction > 0.5) score += 0.10;
-      if (p.Pregnancies > 4) score += 0.05;
+async function runDiagnosis() {
+  const isMale=currentGender==='male';
+  const gv = id => { const el=document.getElementById(id); return el?el.value:0; };
+  const payload = {
+    Gender: currentGender,
+    Pregnancies: isMale?0:(parseInt(gv('num_Pregnancies'))||0),
+    Glucose: parseFloat(gv('num_Glucose'))||0,
+    BloodPressure: parseFloat(gv('num_BloodPressure'))||0,
+    SkinThickness: parseFloat(gv('num_SkinThickness'))||0,
+    Insulin: parseFloat(gv('num_Insulin'))||0,
+    BMI: parseFloat(gv('num_BMI'))||0,
+    DiabetesPedigreeFunction: parseFloat(gv('num_DiabetesPedigreeFunction'))||0,
+    Age: parseInt(gv('num_Age'))||18
+  };
+  setLoading(true); const t0=performance.now();
+  try {
+    const res=await fetch(API_BASE+'/predict',{method:'POST',headers:'application/json',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if (!res.ok) throw new Error('API '+res.status);
+    applyResult(await res.json(), Math.round(performance.now()-t0)+'ms');
+  } catch(_) {
+    applyResult(computeLocalFallback(payload), Math.round(performance.now()-t0)+'ms (local)');
+  } finally { setLoading(false); }
+}
 
-      const prob = Math.min(Math.max(score, 0.01), 0.98);
-      const isDiabetic = prob >= 0.5;
-      const conf = isDiabetic ? prob : (1 - prob);
+function computeLocalFallback(p) {
+  let score=0;
+  if(p.Glucose>127)score+=0.45; else if(p.Glucose>105)score+=0.20;
+  if(p.BMI>30)score+=0.25; else if(p.BMI>25)score+=0.12;
+  if(p.Age>40)score+=0.15; if(p.DiabetesPedigreeFunction>0.5)score+=0.10; if(p.Pregnancies>4)score+=0.05;
+  const prob=Math.min(Math.max(score,0.01),0.98), isDiabetic=prob>=0.5, conf=isDiabetic?prob:(1-prob);
+  return { prediction:isDiabetic?'Diabetes':'No Diabetes', confidence:(conf*100).toFixed(1)+'%', probability:prob,
+    risk_level:prob>=0.65?'High Risk':prob>=0.35?'Moderate Risk':'Low Risk', model_used:'Local Fallback',
+    patient_gender:p.Gender, prediction_id:null, status:'success (local)' };
+}
 
-      let risk = "Low Risk";
-      if (prob >= 0.65) risk = "High Risk";
-      else if (prob >= 0.35) risk = "Moderate Risk";
+function applyResult(data, latency) {
+  const prob=data.probability!=null?data.probability:0.5, isDiabetic=data.prediction==='Diabetes';
+  const risk=data.risk_level||(isDiabetic?'High Risk':'Low Risk');
+  if (!hasRunOnce) {
+    document.getElementById('awaitingState').style.display='none';
+    document.getElementById('resultContent').style.display='block'; hasRunOnce=true;
+  }
+  document.getElementById('latencyTag').textContent=latency;
+  document.getElementById('confidenceNumber').textContent=data.confidence||'-';
+  const bar=document.getElementById('meterBar');
+  bar.style.width=(prob*100).toFixed(1)+'%'; bar.className='mbar';
+  if(prob>=0.65)bar.classList.add('danger'); else if(prob>=0.35)bar.classList.add('warn');
+  const banner=document.getElementById('diagnosisBanner');
+  const rText=document.getElementById('riskLevelText'), pText=document.getElementById('predictionText'), recText=document.getElementById('recommendationText');
+  banner.className='dbanner';
+  if (risk==='High Risk'||isDiabetic) {
+    banner.classList.add('bhigh'); rText.textContent='High Risk'; pText.textContent='Diabetes Positive';
+    recText.textContent='Immediate clinical HbA1c test and physician consultation recommended.';
+  } else if (risk==='Moderate Risk') {
+    banner.classList.add('bmed'); rText.textContent='Moderate Risk'; pText.textContent='Borderline / Prediabetic';
+    recText.textContent='Lifestyle interventions advised. Monitor vitals and follow up in 3 months.';
+  } else {
+    banner.classList.add('blow'); rText.textContent='Low Risk'; pText.textContent='No Diabetes Detected';
+    recText.textContent='Vitals within optimal healthy range. Maintain routine checkups.';
+  }
+  updateCategoryBadges();
+  if(data.model_used)document.getElementById('modelFooter').textContent='Model: '+data.model_used;
+  updatePatientProfileTag(); lastResultData=data;
+  document.getElementById('apiJsonPreview').innerHTML=syntaxHighlightJson({
+    status:data.status, prediction:data.prediction, confidence:data.confidence, probability:data.probability,
+    risk_level:data.risk_level, model_used:data.model_used, patient_gender:data.patient_gender,
+    prediction_id:data.prediction_id, timestamp:data.timestamp });
+}
 
-      return {
-        prediction: isDiabetic ? "Diabetes" : "No Diabetes",
-        confidence: (conf * 100).toFixed(1) + "%",
-        probability: prob,
-        risk_level: risk,
-        model_used: "Decision Tree (Simulated Fallback)"
-      };
-    }
+function syntaxHighlightJson(obj) {
+  return JSON.stringify(obj,null,2).replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(m) {
+    let cls='jn';
+    if(/^"/.test(m))cls=/:$/.test(m)?'jk':'js';
+    else if(/true|false/.test(m))cls='jb'; else if(/null/.test(m))cls='jnl';
+    return '<span class="'+cls+'">'+m+'</span>';
+  });
+}
 
-    function applyPredictionResult(data, latency) {
-      const prob = data.probability !== undefined ? data.probability : 0.5;
-      const isDiabetic = data.prediction === "Diabetes";
-      const risk = data.risk_level || (isDiabetic ? "High Risk" : "Low Risk");
+function copyApiJson() {
+  if (!lastResultData) return;
+  const label=document.getElementById('copyBtnLabel');
+  navigator.clipboard.writeText(JSON.stringify(lastResultData,null,2)).then(()=>{ label.textContent='Copied!'; setTimeout(()=>{label.textContent='Copy JSON';},2000); });
+}
 
-      // Update latency
-      document.getElementById('latencyTag').innerText = `Latency: ${latency}ms`;
+function setLoading(on) {
+  const btn=document.getElementById('submitBtn'), label=document.getElementById('submitLabel'), icon=document.getElementById('runIcon');
+  btn.disabled=on; label.textContent=on?'Analysing...':'Run Clinical Diagnosis'; icon.style.display=on?'none':'';
+}
+</script>
 
-      // Update gauge needle: -90deg (0% risk) to +90deg (100% risk)
-      const deg = -90 + (prob * 180);
-      document.getElementById('needleGroup').style.transform = `rotate(${deg}deg)`;
-
-      // Confidence display
-      document.getElementById('confidenceNumber').innerText = data.confidence;
-
-      // Update banner and dynamic colors
-      const resultCard = document.getElementById('resultCard');
-      const banner = document.getElementById('diagnosisBanner');
-      const riskText = document.getElementById('riskLevelText');
-      const predText = document.getElementById('predictionText');
-      const recText = document.getElementById('recommendationText');
-
-      document.getElementById('apiPredPreview').innerText = data.prediction;
-      document.getElementById('apiConfPreview').innerText = data.confidence;
-      document.getElementById('apiRiskPreview').innerText = risk;
-
-      if (risk === "High Risk" || isDiabetic) {
-        resultCard.className = "rounded-2xl border p-6 shadow-2xl transition-all duration-500 relative overflow-hidden bg-gradient-to-b from-slate-900 via-rose-950/30 to-slate-900 border-rose-800/80 pulse-glow-high";
-        banner.className = "mt-4 p-4 rounded-xl text-center border transition-all duration-500 bg-rose-950/80 border-rose-700 text-rose-100";
-        riskText.className = "text-xs uppercase tracking-widest font-extrabold text-rose-400";
-        riskText.innerText = "CRITICAL: HIGH RISK DETECTED";
-        predText.innerText = "Diabetes Positive";
-        predText.className = "text-2xl font-black tracking-wide my-1 text-rose-200";
-        recText.innerText = "Immediate laboratory HbA1c and physician diagnostic follow-up strongly advised.";
-      } else if (risk === "Moderate Risk") {
-        resultCard.className = "rounded-2xl border p-6 shadow-2xl transition-all duration-500 relative overflow-hidden bg-gradient-to-b from-slate-900 via-amber-950/30 to-slate-900 border-amber-800/80 pulse-glow-med";
-        banner.className = "mt-4 p-4 rounded-xl text-center border transition-all duration-500 bg-amber-950/80 border-amber-700 text-amber-100";
-        riskText.className = "text-xs uppercase tracking-widest font-extrabold text-amber-400";
-        riskText.innerText = "ELEVATED: MODERATE PREDIABETIC RISK";
-        predText.innerText = "Borderline Risk";
-        predText.className = "text-2xl font-black tracking-wide my-1 text-amber-200";
-        recText.innerText = "Lifestyle intervention, dietary monitoring, and 3-month vital retest suggested.";
-      } else {
-        resultCard.className = "rounded-2xl border p-6 shadow-2xl transition-all duration-500 relative overflow-hidden bg-gradient-to-b from-slate-900 via-emerald-950/30 to-slate-900 border-emerald-800/80 pulse-glow-low";
-        banner.className = "mt-4 p-4 rounded-xl text-center border transition-all duration-500 bg-emerald-950/80 border-emerald-700 text-emerald-100";
-        riskText.className = "text-xs uppercase tracking-widest font-extrabold text-emerald-400";
-        riskText.innerText = "OPTIMAL: LOW CLINICAL RISK";
-        predText.innerText = "No Diabetes Detected";
-        predText.className = "text-2xl font-black tracking-wide my-1 text-emerald-200";
-        recText.innerText = "Vitals are within healthy physiological thresholds. Maintain balanced lifestyle.";
-      }
-    }
-
-    // Initialize on load
-    window.addEventListener('DOMContentLoaded', () => {
-      updateCategoryBadges();
-      runDiagnosis();
-    });
-  </script>
 </body>
 </html>
